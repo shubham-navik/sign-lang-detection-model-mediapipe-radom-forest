@@ -2,6 +2,7 @@ import os
 import pickle
 import mediapipe as mp
 import cv2
+import numpy as np
 
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
@@ -45,6 +46,13 @@ for dir_ in os.listdir(DATA_DIR):
                 data.append(data_aux)
                 labels.append(dir_)
 
+# Pad sequences to the maximum length
+max_len = max(len(seq) for seq in data)
+data_padded = np.array([np.pad(seq, (0, max_len - len(seq)), mode='constant') for seq in data])
+
+# Convert labels to integers
+labels = np.array(labels, dtype=int)
+
 # Save data and labels to a pickle file
 with open('data.pickle', 'wb') as f:
-    pickle.dump({'data': data, 'labels': labels}, f)
+    pickle.dump({'data': data_padded, 'labels': labels}, f)
